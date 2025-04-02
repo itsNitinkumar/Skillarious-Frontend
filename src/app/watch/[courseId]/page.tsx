@@ -5,6 +5,8 @@ import { ThumbsUp, ThumbsDown, Share2, BookOpen, MessageCircle } from 'lucide-re
 import VideoPlayer from '@/components/VideoPlayer';
 import CommentSection from '@/components/CommentSection';
 import ChatBox from '@/components/ChatBox';
+import DoubtForm from '@/components/DoubtForm';
+import DoubtDetails from '@/components/DoubtDetails';
 
 export default function WatchCourse({ params }: { params: { courseId: string } }) {
   const [isChatOpen, setIsChatOpen] = useState(false);

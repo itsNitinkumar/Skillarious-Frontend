@@ -1,6 +1,7 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { X } from 'lucide-react';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { X, Loader2 } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 interface PaymentModalProps {
   course: {
@@ -12,11 +13,81 @@ interface PaymentModalProps {
 }
 
 const PaymentModal: React.FC<PaymentModalProps> = ({ course, onClose }) => {
-  const navigate = useNavigate();
+  const router = useRouter();
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
 
-  const handlePayment = () => {
-    navigate(`/payment/${course.id}`);
-    onClose();
+  const handlePayment = async () => {
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Create order
+      const response = await fetch('/api/v1/payments/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          courseId: course.id,
+          amount: course.price,
+          userId: user.id
+        }),
+      });
+
+      const data = await response.json();
+      if (!data.success) throw new Error(data.message);
+
+      // Initialize Razorpay
+      const options = {
+        key: data.key,
+        amount: data.order.amount,
+        currency: "INR",
+        name: "Learn Sphere",
+        description: `Purchase ${course.title}`,
+        order_id: data.order.id,
+        handler: async function (response: any) {
+          try {
+            // Verify payment
+            const verifyResponse = await fetch('/api/v1/payments/verify', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature
+              })
+            });
+
+            const verifyData = await verifyResponse.json();
+            if (verifyData.success) {
+              router.push(`/courses/${course.id}/watch`);
+            }
+          } catch (error) {
+            console.error('Payment verification failed:', error);
+          }
+        },
+        prefill: {
+          email: user.email,
+          name: user.name
+        },
+        theme: {
+          color: "#dc2626"
+        }
+      };
+
+      const razorpay = new (window as any).Razorpay(options);
+      razorpay.open();
+    } catch (error) {
+      console.error('Payment initiation failed:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -30,13 +101,21 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ course, onClose }) => {
         </div>
         <div className="mb-6">
           <h3 className="text-white mb-2">{course.title}</h3>
-          <p className="text-red-500 font-bold">${course.price}</p>
+          <p className="text-red-500 font-bold">₹{course.price}</p>
         </div>
         <button
           onClick={handlePayment}
-          className="w-full bg-red-600 text-white py-3 rounded-lg hover:bg-red-700"
+          disabled={loading}
+          className="w-full bg-red-600 text-white py-3 rounded-lg hover:bg-red-700 disabled:opacity-50 flex items-center justify-center"
         >
-          Continue to Payment
+          {loading ? (
+            <>
+              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+              Processing...
+            </>
+          ) : (
+            'Proceed to Payment'
+          )}
         </button>
       </div>
     </div>

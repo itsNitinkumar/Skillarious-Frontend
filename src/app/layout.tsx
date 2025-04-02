@@ -1,16 +1,13 @@
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Metadata } from 'next';
+import Script from 'next/script';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from '@/context/AuthContext';
-import './globals.css';
 import Header from '@/components/Header';
-import Sidebar from '@/components/Sidebar';
-
-const inter = Inter({ subsets: ['latin'] });
+import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Learned Spare',
-  description: 'Online learning platform for developers',
+  title: 'Learn Sphere',
+  description: 'Online Learning Platform',
 };
 
 export default function RootLayout({
@@ -20,20 +17,25 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <head>
+        <Script
+          id="razorpay-checkout"
+          src="https://checkout.razorpay.com/v1/checkout.js"
+          strategy="beforeInteractive"
+        />
+      </head>
+      <body>
         <AuthProvider>
-          <div className="min-h-screen bg-gray-900">
-            <Header />
-            <div className="pt-16">
-              <Sidebar />
-              <div className="ml-64 p-4">
-                {children}
-              </div>
-            </div>
-          </div>
-          <Toaster position="top-right" />
+          <Header />
+          <main className="min-h-screen bg-gray-900 pt-16">
+            {children}
+          </main>
+          <Toaster position="bottom-center" />
         </AuthProvider>
       </body>
     </html>
   );
 }
+
+
+

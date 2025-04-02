@@ -114,31 +114,38 @@ export interface AdminDashboardResponse {
   success: boolean;
   message: string;
   data: {
-    userStats: {
-      total: number;
-      active: number;
-      newThisMonth: number;
-      educators: number;
-      banned: number;
-    };
-    courseStats: {
-      total: number;
-      active: number;
-      dismissed: number;
-      totalRevenue: number;
-      monthlyRevenue: number;
-    };
-    doubtStats: {
-      total: number;
-      resolved: number;
-      pending: number;
-      averageResolutionTime: number;
-    };
-    contentStats: {
-      total: number;
-      videos: number;
-      documents: number;
-      totalViews: number;
+    platformOverview: {
+      userMetrics: {
+        totalUsers: number;
+        totalEducators: number;
+        verifiedUsers: number;
+      };
+      courseMetrics: {
+        totalCourses: number;
+        activeCourses: number;
+        totalCategories: number;
+        totalModules: number;
+        totalContent: number;
+      };
+      financialMetrics: {
+        totalRevenue: number;
+        successfulTransactions: number;
+      };
+      reviewMetrics: {
+        totalReviews: number;
+        averageRating: number;
+        ratingDistribution: {
+          fiveStars: number;
+          fourStars: number;
+          threeStars: number;
+          twoStars: number;
+          oneStar: number;
+        };
+      };
+      supportMetrics: {
+        totalDoubts: number;
+        resolvedDoubts: number;
+      };
     };
     recentTransactions: Transaction[];
     recentLogs: AdminLog[];
@@ -230,5 +237,6 @@ export interface EducatorResponse {
 //     course: Pick<Course, 'id' | 'name' | 'price'>;
 //   };
 // }
+
 
 

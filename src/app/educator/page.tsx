@@ -7,8 +7,8 @@ import CourseCard from "@/components/CourseCard";
 import { CourseCardSkeleton } from "@/components/CourseCard";
 
 export default function EducatorCourses() {
-  const params = useParams();
-  const edid = params.eid as string;
+  const params = useParams() || {};
+  const edid = (params.eid as string) || '';
   const [courses, setCourses] = useState<Course[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -16,6 +16,12 @@ export default function EducatorCourses() {
 
   useEffect(() => {
     const fetchCourses = async () => {
+      if (!edid) {
+        setError('Educator ID is required');
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
         const response = await educatorService.getEdCourses(edid);
@@ -74,7 +80,7 @@ export default function EducatorCourses() {
               key={course.id} 
               course={{
                 ...course,
-                title: course.title, // Map name to title as per Course type
+                name: course.name, // Use name property as defined in Course type
                 price: parseFloat(course.price as unknown as string), // Convert price to number
               }} 
             />

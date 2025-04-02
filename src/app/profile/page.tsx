@@ -1,112 +1,107 @@
 'use client';
 
-import { Users, Star, Award, PlayCircle } from 'lucide-react';
-import CourseCard from '@/components/CourseCard';
-import { Course } from '@/types';
-import axios from 'axios';
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import { Target, BookOpen, TrendingUp, Award } from 'lucide-react';
 
-import ProtectedRoute from '@/components/ProtectedRoute';
-
-export default function Profile() {
-
-
-  const instructor = {
-    name: 'Jane Smith',
-    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330',
-    banner: 'https://images.unsplash.com/photo-1497864149936-d3163f0c0f4b',
-    bio: 'Senior Software Engineer with 10+ years of experience. Passionate about teaching web development and helping others succeed in tech.',
-    subscribers: 15420,
-    totalStudents: 45890,
-    averageRating: 4.8,
-    coursesCount: 12
-  };
-
-  const courses: Course[] = [
-    {
-      id: '1',
-      title: 'Advanced React Patterns',
-      instructor: instructor.name,
-      thumbnail: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee',
-      price: 89.99,
-      rating: 4.9,
-      students: 2345,
-      description: 'Master advanced React patterns and concepts',
-      preview_url: 'https://example.com/preview1.mp4'
-    },
-    {
-      id: '2',
-      title: 'Node.js Microservices',
-      instructor: instructor.name,
-      thumbnail: 'https://images.unsplash.com/photo-1627398242454-45a1465c2479',
-      price: 79.99,
-      rating: 4.7,
-      students: 1890,
-      description: 'Build scalable microservices with Node.js',
-      preview_url: 'https://example.com/preview2.mp4'
-    }
-  ];
+export default function ProfilePage() {
+  const [activeTab, setActiveTab] = useState('progress');
+  const [userStats, setUserStats] = useState({
+    coursesCompleted: 0,
+    hoursLearned: 0,
+    certificatesEarned: 0,
+    currentStreak: 0
+  });
 
   return (
-    <ProtectedRoute>
-      <div className="ml-64">
-        <div className="h-48 relative -z-10">
-          <img
-            src={instructor.banner}
-            alt="Profile banner"
-            className="w-full h-full object-cover"
-          />
+    <div className="container mx-auto px-4 py-8">
+      <div className="grid grid-cols-4 gap-8">
+        <div className="col-span-1">
+          <div className="bg-gray-800 rounded-lg p-6 text-center">
+            <div className="relative w-32 h-32 mx-auto mb-4">
+              <Image
+                src="/default-avatar.png"
+                alt="Profile"
+                fill
+                className="rounded-full object-cover"
+              />
+            </div>
+            <h2 className="text-xl font-bold text-white mb-2">John Doe</h2>
+            <p className="text-gray-400 mb-4">Web Developer</p>
+            <button className="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700">
+              Edit Profile
+            </button>
+          </div>
+
+          <div className="bg-gray-800 rounded-lg p-6 mt-6">
+            <h3 className="text-lg font-semibold text-white mb-4">Learning Stats</h3>
+            <div className="space-y-4">
+              <div className="flex justify-between">
+                <span className="text-gray-400">Courses Completed</span>
+                <span className="text-white">{userStats.coursesCompleted}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Hours Learned</span>
+                <span className="text-white">{userStats.hoursLearned}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Certificates</span>
+                <span className="text-white">{userStats.certificatesEarned}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Current Streak</span>
+                <span className="text-white">{userStats.currentStreak} days</span>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className="max-w-6xl mx-auto px-6 -mt-16">
-          <div className="bg-gray-800 rounded-lg p-8 mb-8">
-            <div className="flex items-start space-x-6">
-              <img
-                src={instructor.avatar}
-                alt={instructor.name}
-                className="w-32 h-32 rounded-full object-cover ring-4 ring-gray-800 -mt-20"
-              />
-              <div className="flex-1">
-                <h1 className="text-3xl font-bold text-white mb-2">{instructor.name}</h1>
-                <p className="text-gray-400 mb-4">{instructor.bio}</p>
-                
-                <div className="grid grid-cols-4 gap-4 mb-4">
-                  <div className="bg-gray-700 p-4 rounded-lg text-center">
-                    <Users className="w-6 h-6 text-red-600 mx-auto mb-2" />
-                    <div className="text-xl font-bold text-white">{instructor.subscribers.toLocaleString()}</div>
-                    <div className="text-sm text-gray-400">Subscribers</div>
-                  </div>
-                  <div className="bg-gray-700 p-4 rounded-lg text-center">
-                    <Star className="w-6 h-6 text-red-600 mx-auto mb-2" />
-                    <div className="text-xl font-bold text-white">{instructor.averageRating}</div>
-                    <div className="text-sm text-gray-400">Average Rating</div>
-                  </div>
-                  <div className="bg-gray-700 p-4 rounded-lg text-center">
-                    <Award className="w-6 h-6 text-red-600 mx-auto mb-2" />
-                    <div className="text-xl font-bold text-white">{instructor.totalStudents.toLocaleString()}</div>
-                    <div className="text-sm text-gray-400">Total Students</div>
-                  </div>
-                  <div className="bg-gray-700 p-4 rounded-lg text-center">
-                    <PlayCircle className="w-6 h-6 text-red-600 mx-auto mb-2" />
-                    <div className="text-xl font-bold text-white">{instructor.coursesCount}</div>
-                    <div className="text-sm text-gray-400">Courses</div>
-                  </div>
+        <div className="col-span-3">
+          <div className="bg-gray-800 rounded-lg p-6 mb-8">
+            <h3 className="text-xl font-bold text-white mb-4">Learning Progress</h3>
+            <div className="grid grid-cols-4 gap-4">
+              <div className="bg-gray-700 p-4 rounded-lg">
+                <div className="flex items-center mb-2">
+                  <BookOpen className="w-5 h-5 text-red-500 mr-2" />
+                  <span className="text-white">Active Courses</span>
                 </div>
-
-                <button className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700">
-                  Edit Profile
-                </button>
+                <div className="text-2xl font-bold text-white">4</div>
+              </div>
+              <div className="bg-gray-700 p-4 rounded-lg">
+                <div className="flex items-center mb-2">
+                  <Target className="w-5 h-5 text-red-500 mr-2" />
+                  <span className="text-white">Goals Completed</span>
+                </div>
+                <div className="text-2xl font-bold text-white">12</div>
+              </div>
+              <div className="bg-gray-700 p-4 rounded-lg">
+                <div className="flex items-center mb-2">
+                  <Award className="w-5 h-5 text-red-500 mr-2" />
+                  <span className="text-white">Certificates</span>
+                </div>
+                <div className="text-2xl font-bold text-white">3</div>
+              </div>
+              <div className="bg-gray-700 p-4 rounded-lg">
+                <div className="flex items-center mb-2">
+                  <TrendingUp className="w-5 h-5 text-red-500 mr-2" />
+                  <span className="text-white">Avg. Score</span>
+                </div>
+                <div className="text-2xl font-bold text-white">85%</div>
               </div>
             </div>
           </div>
 
-          <h2 className="text-2xl font-bold text-white mb-6">Your Courses</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            {courses.map((course) => (
-              <CourseCard key={course.id} course={course} />
-            ))}
+          <div className="bg-gray-800 rounded-lg p-6">
+            <h3 className="text-xl font-bold text-white mb-4">Learning Goals</h3>
+            <div className="space-y-4">
+              {/* Add your learning goals components here */}
+            </div>
           </div>
         </div>
       </div>
-    </ProtectedRoute>
+    </div>
   );
 }
+
+
+

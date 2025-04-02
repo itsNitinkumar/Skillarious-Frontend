@@ -54,13 +54,14 @@ export interface Educator {
 // Course related types
 export interface Course {
   id: string;
-  title: string;
+  name: string;
   description: string;
+  about: string;
   price: number;
-  thumbnail?: string;
-  viewCount?: number;
+  thumbnail: string;
   educatorId: string;
-  // Add other course properties as needed
+  start: Date;
+  end: Date;
 }
 
 export interface CourseCreateInput {
@@ -92,19 +93,26 @@ export interface CategoryCourse {
 
 // Module related types
 export interface Module {
+  [x: string]: string;
   id: string;
-  courseId: string;
   name: string;
   duration?: number;
   videoCount?: number;
   materialCount?: number;
-  isDismissed: boolean;
-  dismissReason?: string;
-  dismissedAt?: Date;
+  courseId: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 // Class related types
 export interface Class {
+  title: string;
+  description: string;
+  videoUrl: string;
+  materialUrl: string;
+  startDate: string | number | Date;
+  endDate: string | number | Date;
+  name: ReactNode;
   id: string;
   moduleId: string;
   views?: number;
@@ -113,7 +121,7 @@ export interface Class {
 }
 
 // Content related types
-export interface Content {
+export interface StudyMaterial {
   id: string;
   moduleId: string;
   title: string;
@@ -121,27 +129,23 @@ export interface Content {
   order: number;
   fileUrl: string;
   type: string;
-  views: number;
-  duration?: number;
-  createdAt: Date;
-  updatedAt: Date;
   isPreview: boolean;
-  isDismissed: boolean;
+  views?: number;
+  isDismissed?: boolean;
   dismissReason?: string;
   dismissedAt?: Date;
-  viewCount: number;
-  timeSpent: number;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 // Review related types
 export interface Review {
   id: string;
-  userId: string;
-  educatorId?: string;
-  courseId?: string;
-  message?: string;
   rating: number;
-  createdAt: Date;
+  message: string;
+  createdAt: string;
+  userId: string;
+  courseId: string;
 }
 
 // Transaction related types
@@ -200,6 +204,14 @@ export interface AdminLog {
   metadata?: any;
   createdAt: Date;
 }
+
+
+
+
+
+
+
+
 
 
 

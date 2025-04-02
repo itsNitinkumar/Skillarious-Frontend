@@ -6,7 +6,11 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 class CourseService {
   async getAllCourses() {
     try {
-      const response = await axios.get(`${API_URL}/courses/all`);
+      const response = await axios.get(`${API_URL}/courses/all`, {
+        headers: {
+          'Authorization': `Bearer ${authService.getAccessToken()}`
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('Error in getAllCourses:', error);
@@ -20,11 +24,30 @@ class CourseService {
   }
 
   async searchCourses(query: string) {
-    const response = await axios.get(`${API_URL}/courses/search?query=${query}`);
-    return response.data;
+    try {
+      const response = await axios.get(`${API_URL}/courses/search?name=${encodeURIComponent(query)}&description=${encodeURIComponent(query)}&about=${encodeURIComponent(query)}`);
+      return {
+        success: true,
+        message: 'Courses searched successfully',
+        courses: response.data.courses || []
+      };
+    } catch (error) {
+      console.error('Error searching courses:', error);
+      return {
+        success: false,
+        message:  axios.isAxiosError(error) ? error.response?.data?.message : 'Failed to search courses',
+        courses: []
+      };
+    }
   }
 
-  async createCourse(courseData: any) {
+  async createCourse(courseData: any, submitData: { 
+    name: string;  // Changed from title to name
+    description: string; 
+    about: string; 
+    price: number; 
+    thumbnail: string | undefined; 
+  }) {
     const response = await axios.post(`${API_URL}/courses/create`, courseData, {
       headers: {
         'Authorization': `Bearer ${authService.getAccessToken()}`
@@ -51,9 +74,27 @@ class CourseService {
     });
     return response.data;
   }
+
+  async getCoursesByEducator(educatorId: string) {
+    try {
+      const response = await axios.get(`${API_URL}/courses/educator/${educatorId}`, {
+        headers: {
+          'Authorization': `Bearer ${authService.getAccessToken()}`
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching educator courses:', error);
+      throw error;
+    }
+  }
 }
 
 export default new CourseService();
+
+
+
+
 
 
 
