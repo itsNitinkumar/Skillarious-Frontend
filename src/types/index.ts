@@ -60,6 +60,9 @@ export interface Course {
   price: number;
   thumbnail: string;
   educatorId: string;
+  educatorName?: string;
+  educatorPfp?: string | null;
+  viewcount: number;
   start: Date;
   end: Date;
 }

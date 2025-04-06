@@ -6,11 +6,13 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 class CourseService {
   async getAllCourses() {
     try {
-      const response = await axios.get(`${API_URL}/courses/all`, {
+      const response = await axios.get(`${API_URL}/courses/all`, 
+        {
         headers: {
           'Authorization': `Bearer ${authService.getAccessToken()}`
         }
       });
+      console.log('response', response.data);
       return response.data;
     } catch (error) {
       console.error('Error in getAllCourses:', error);
