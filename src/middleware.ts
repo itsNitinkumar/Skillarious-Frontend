@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { useAuth } from '@/context/AuthContext';
 
 export function middleware(request: NextRequest) {
   // Get the pathname
@@ -15,6 +16,7 @@ export function middleware(request: NextRequest) {
     }
   }
 
+
   return NextResponse.next();
 }
 
@@ -25,6 +27,7 @@ export const config = {
     '/dashboard/:path*',
     '/profile/:path*',
     '/educator/:path*',
+    '/courses/:path*',
     '/login',
     '/signup'
   ]

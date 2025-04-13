@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Mail, Lock, User, ArrowRight } from 'lucide-react';
+import { Mail, Lock, User } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
@@ -12,7 +12,7 @@ export default function SignUp() {
     name: '',
     email: '',
     password: '',
-    accountType: ''
+    accountType: 'student'
   });
   const [loading, setLoading] = useState(false);
   const { signup } = useAuth();
@@ -31,18 +31,25 @@ export default function SignUp() {
     setLoading(true);
 
     try {
-      // First sign up the user
-      await signup(formData.name, formData.email, formData.password);
-      toast.success('Account created successfully! Please verify your email.');
+      const signupData = {
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        password: formData.password
+      };
+
+      const response = await signup(signupData);
       
-      // Store the account type in localStorage for after verification
-      if (formData.accountType === 'instructor') {
-        localStorage.setItem('pendingEducatorRegistration', 'true');
+      if (response.success) {
+        toast.success('Account created successfully! Please verify your email.');
+        
+        if (formData.accountType === 'instructor') {
+          localStorage.setItem('pendingEducatorRegistration', 'true');
+        }
+        
+        router.push('/verify-email?email=' + encodeURIComponent(formData.email));
       }
-      
-      router.push('/verify-email?email=' + encodeURIComponent(formData.email));
     } catch (error: any) {
-      toast.error(error.message || 'Failed to create account');
+      toast.error(error.response?.data?.message || error.message || 'Failed to create account');
     } finally {
       setLoading(false);
     }
@@ -108,7 +115,6 @@ export default function SignUp() {
                   required
                   className="block w-full pl-10 pr-3 py-2 border border-gray-700 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent"
                   placeholder="••••••••"
-                  minLength={4}
                 />
               </div>
             </div>
@@ -130,29 +136,23 @@ export default function SignUp() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex justify-center items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
           >
-            {loading ? (
-              'Creating Account...'
-            ) : (
-              <>
-                <span>Create Account</span>
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </>
-            )}
+            {loading ? 'Creating Account...' : 'Sign Up'}
           </button>
-        </form>
 
-        <div className="text-center">
-          <p className="text-gray-400">
+          <p className="text-center text-gray-400">
             Already have an account?{' '}
             <Link href="/login" className="text-red-600 hover:text-red-500">
               Sign in
             </Link>
           </p>
-        </div>
+        </form>
       </div>
     </div>
   );
 }
+
+
+
 

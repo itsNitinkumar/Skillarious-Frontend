@@ -7,6 +7,7 @@ import { toast } from 'react-hot-toast';
 import CourseCard, { CourseCardSkeleton } from '@/components/CourseCard';
 import { FollowerPointerCard } from '@/components/ui/following-pointer';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export default function CoursesPage() {
   const [loading, setLoading] = useState(true);
@@ -100,9 +101,11 @@ export default function CoursesPage() {
                   </div>
                   <div className="mt-10 flex flex-row items-center justify-between">
                     <span className="text-sm text-gray-500">{new Date(course?.start).toLocaleDateString()}</span>
-                    <div className="relative z-10 block rounded-sm bg-[#2b0f48] hover:bg-[#2b0f48]/80 px-6 py-2 text-xs font-bold text-white">
-                    {course.price} ₹
-                    </div>
+                    <Link href={`/courses/access/${course.id}`}>
+                      <div className="relative z-10 block rounded-sm bg-[#2b0f48] hover:bg-[#2b0f48]/80 px-6 py-2 text-xs font-bold text-white">
+                        View
+                      </div>
+                    </Link>
                   </div>
                 </div>
               </div>

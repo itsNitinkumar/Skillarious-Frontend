@@ -5,6 +5,8 @@ import reviewService from '@/services/review.service';
 import { Star, Edit2, Trash2, X } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '@/context/AuthContext';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { useRef } from 'react';
 
 export default function ReviewPage({ params }: { params: { courseId: string } }) {
     const { user } = useAuth();
@@ -145,10 +147,58 @@ export default function ReviewPage({ params }: { params: { courseId: string } })
         );
     }
 
+    const containerRef = useRef(null);
+    const { scrollYProgress } = useScroll({
+        target: containerRef,
+        offset: ["start end", "end start"]
+    });
+
     return (
         <div className="max-w-4xl mx-auto p-4 space-y-8">
-            <h1 className="text-3xl font-bold text-gray-800">Course Reviews</h1>
-            
+            {/* What Users Say Title - Moved to top */}
+            <div className="relative mb-16">
+                <div className="absolute left-1/2 -top-12 w-px h-12 bg-gradient-to-b from-transparent to-[#FF6B47]" />
+                <motion.div 
+                    className="text-3xl font-bold text-center"
+                    animate={{
+                        rotate: [-2, 2, -2],
+                        y: [0, -5, 0]
+                    }}
+                    transition={{
+                        rotate: {
+                            duration: 4,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        },
+                        y: {
+                            duration: 2,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }
+                    }}
+                    style={{
+                        transformOrigin: "top center"
+                    }}
+                >
+                    <span>What Users </span>
+                    <motion.span 
+                        className="text-[#FF6B47] inline-block relative"
+                        animate={{
+                            y: [0, -8, 0],
+                        }}
+                        transition={{
+                            duration: 2,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                            delay: 0.5
+                        }}
+                    >
+                        Say
+                        <span className="absolute bottom-0 left-0 w-full h-1 bg-[#FF6B47] rounded-full"></span>
+                    </motion.span>
+                </motion.div>
+            </div>
+
             {error && (
                 <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
                     {error}
@@ -216,12 +266,35 @@ export default function ReviewPage({ params }: { params: { courseId: string } })
                 </form>
             )}
 
-            {/* Reviews List */}
-            <div className="space-y-4">
-                {reviews.map((review) => (
-                    <div
+            {/* Reviews Container */}
+            <div 
+                ref={containerRef} 
+                className="space-y-6"
+            >
+                {reviews.map((review, index) => (
+                    <motion.div
                         key={review.id}
                         className="bg-white shadow-md rounded-lg p-6 transition-all hover:shadow-lg"
+                        initial={{ 
+                            x: index % 2 === 0 ? -100 : 100,
+                            opacity: 0 
+                        }}
+                        animate={{
+                            x: 0,
+                            opacity: 1,
+                            y: scrollYProgress.get() * (index % 2 === 0 ? -20 : 20)
+                        }}
+                        transition={{
+                            duration: 0.5,
+                            delay: index * 0.1
+                        }}
+                        style={{
+                            y: useTransform(
+                                scrollYProgress,
+                                [0, 1],
+                                [0, index % 2 === 0 ? -50 : 50]
+                            )
+                        }}
                     >
                         <div className="flex justify-between items-start">
                             <div className="space-y-2">
@@ -233,22 +306,26 @@ export default function ReviewPage({ params }: { params: { courseId: string } })
                             </div>
                             {isReviewOwner(review) && (
                                 <div className="flex gap-2">
-                                    <button
+                                    <motion.button
+                                        whileHover={{ scale: 1.1 }}
+                                        whileTap={{ scale: 0.95 }}
                                         onClick={() => selectReviewForEdit(review)}
                                         className="p-2 text-blue-500 hover:bg-blue-50 rounded-full"
                                     >
                                         <Edit2 className="w-5 h-5" />
-                                    </button>
-                                    <button
+                                    </motion.button>
+                                    <motion.button
+                                        whileHover={{ scale: 1.1 }}
+                                        whileTap={{ scale: 0.95 }}
                                         onClick={() => handleDeleteReview(review)}
                                         className="p-2 text-red-500 hover:bg-red-50 rounded-full"
                                     >
                                         <Trash2 className="w-5 h-5" />
-                                    </button>
+                                    </motion.button>
                                 </div>
                             )}
                         </div>
-                    </div>
+                    </motion.div>
                 ))}
             </div>
         </div>

@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Search } from 'lucide-react';
+import { Search, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import courseService from '@/services/course.service';
 import categoryService from '@/services/category.service';
 
 export default function Header() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<{
@@ -146,9 +147,56 @@ export default function Header() {
           Educator Profile
         </Link>
       )}
+
+      {user && (
+        <div className="relative">
+          <button 
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="flex items-center space-x-2 text-white hover:text-gray-300"
+          >
+            <img
+              src={user.pfp || '/default-avatar.png'}
+              alt="Profile"
+              className="w-8 h-8 rounded-full"
+            />
+            <span>{user.name}</span>
+          </button>
+          
+          {isMenuOpen && (
+            <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg py-1">
+              <Link
+                href="/profile"
+                className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Profile
+              </Link>
+              <Link
+                href="/settings"
+                className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Settings
+              </Link>
+              <div className="border-t border-gray-700"></div>
+              <Link
+                href="/logout"
+                className="flex items-center px-4 py-2 text-sm text-red-500 hover:bg-gray-700"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
     </header>
   );
 }
+
+
+
 
 
 

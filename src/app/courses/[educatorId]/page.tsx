@@ -6,9 +6,11 @@ import { useRouter } from 'next/navigation';
 import { Loader2, Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import Image from 'next/image';
+import { useAuth } from '@/context/AuthContext';
 
 export default function CoursesPage({ params }: { params: { educatorId: string } }) {
   const router = useRouter();
+  const auth = useAuth();
   const [courses, setCourses] = useState<Course[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [formData, setFormData] = useState<Course>({
@@ -20,28 +22,59 @@ export default function CoursesPage({ params }: { params: { educatorId: string }
     thumbnail: '',
     educatorId: '',
     start: new Date(),
-    end: new Date()
+    end: new Date(),
+    viewcount: 0,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedCourseId, setExpandedCourseId] = useState<string | null>(null);
 
   useEffect(() => {
+    // Add console logs to debug
+    console.log('Current user:', auth.user);
+    console.log('Params educatorId:', params.educatorId);
+
+    // Check if user is logged in
+    if (!auth.user && !auth.loading) {
+      console.log('No user found, redirecting to login');
+      router.push('/login');
+      return;
+    }
+
+    // Check if user is an educator
+    if (!auth.user?.isEducator && !auth.loading) {
+      console.log('User is not an educator, redirecting to home');
+      router.push('/');
+      return;
+    }
+
+    // Fetch educator courses
     fetchCourses();
-  }, [params.educatorId]);
+  }, [params.educatorId, auth.user, auth.loading]);
 
   const fetchCourses = async () => {
     try {
       setLoading(true);
       const response = await courseService.getCoursesByEducator(params.educatorId);
-      setCourses(response.courses);
+      if (response.courses) {
+        setCourses(response.courses);
+      }
     } catch (error) {
+      console.error('Error fetching courses:', error);
       setError('Failed to fetch courses');
       toast.error('Failed to fetch courses');
     } finally {
       setLoading(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="animate-spin h-8 w-8 text-white" />
+      </div>
+    );
+  }
 
   const createCourse = async () => {
     try {
@@ -50,10 +83,11 @@ export default function CoursesPage({ params }: { params: { educatorId: string }
         name: formData.name,
         description: formData.description,
         about: formData.about || '',
-        price: formData.price,
-        thumbnail: formData.thumbnail || '', // Provide default if empty
-        start: formData.start.toISOString(), // Include start date
-        end: formData.end.toISOString(),     // Include end date
+        price: Number(formData.price), // Ensure price is a number
+        thumbnail: formData.thumbnail || '',
+        start: formData.start,
+        end: formData.end,
+        viewcount: 0,
       };
 
       if (!submitData.name || !submitData.description || !submitData.price) {
@@ -61,7 +95,9 @@ export default function CoursesPage({ params }: { params: { educatorId: string }
         return;
       }
 
-      const response = await courseService.createCourse(params.educatorId, submitData);
+      const response = await courseService.createCourse(params.educatorId, {
+        body: submitData,
+      });
       setCourses([...courses, response.course]);
       setSelectedCourse(response.course);
       resetForm();
@@ -119,7 +155,8 @@ export default function CoursesPage({ params }: { params: { educatorId: string }
       thumbnail: '',
       educatorId: '',
       start: new Date(),
-      end: new Date()
+      end: new Date(),
+      viewcount: 0,
     });
     setSelectedCourse(null);
   };

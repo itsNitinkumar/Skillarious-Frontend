@@ -16,13 +16,23 @@ interface User {
   verified: boolean;
 }
 
+interface SignupData {
+  name: string;
+  email: string;
+  password: string;
+  phone?: string;
+  gender?: string;
+  age?: number;
+}
+
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  signup: (name: string, email: string, password: string) => Promise<void>;
+  signup: (data: SignupData) => Promise<void>;
   logout: () => Promise<void>;
   verifyOtp: (email: string, otp: string) => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
@@ -96,11 +106,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const signup = async (name: string, email: string, password: string) => {
+  const signup = async (data: SignupData) => {
     try {
-      await authService.signup(name, email, password);
+      const response = await authService.signup(data);
+      return response.data;
     } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Signup failed');
+      throw new Error(error.response?.data?.message || 'Failed to create account');
     }
   };
 
@@ -136,13 +147,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     try {
       await authService.logout();
-      setUser(null);
-      router.push('/login');
     } catch (error: any) {
       console.error('Logout failed:', error);
-      // Still clear local state even if server logout fails
+    } finally {
+      // Clear user state
       setUser(null);
-      router.push('/login');
+      
+      // Clear any context-specific state
+      setLoading(false);
+      
+      // You might want to clear other app-specific state here
     }
   };
 
@@ -154,6 +168,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 }
 
 export const useAuth = () => useContext(AuthContext);
+
+
+
 
 
 

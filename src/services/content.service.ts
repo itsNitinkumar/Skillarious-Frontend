@@ -178,8 +178,22 @@ class ContentService {
         }
     }
 
-    // Remove or update getClassStream if it's no longer needed
-    // async getClassStream(courseId: string) { ... }
+    async getModuleClasses(moduleId: string) {
+        try {
+            const response = await axios.get(`${API_URL}/content/getModuleClasses/${moduleId}`, {
+                headers: {
+                    'Authorization': `Bearer ${authService.getAccessToken()}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                console.error('Error fetching module classes:', error.response?.data);
+                throw error;
+            }
+            throw error;
+        }
+    }
 
     async updateClass(classId: string, classData: any) {
         const response = await axios.put(`${API_URL}/content/updateClass/${classId}`, classData, {
@@ -202,6 +216,26 @@ class ContentService {
             if (axios.isAxiosError(error)) {
                 console.error('Delete class error:', error.response?.data);
                 throw error.response?.data;
+            }
+            throw error;
+        }
+    }
+
+    async saveVideoProgress(classId: string, progress: number) {
+        try {
+            const response = await axios.post(`${API_URL}/content/saveVideoProgress`, {
+                classId,
+                progress
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${authService.getAccessToken()}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                console.error('Save video progress error:', error.response?.data);
+                throw error;
             }
             throw error;
         }

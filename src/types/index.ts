@@ -109,6 +109,7 @@ export interface Module {
 
 // Class related types
 export interface Class {
+  [x: string]: number;
   title: string;
   description: string;
   videoUrl: string;
@@ -198,6 +199,18 @@ export interface Message {
   isResponse: boolean;
 }
 
+// Profile related types
+export interface Profile {
+    name: string;
+    email: string;
+    phone: string;
+    age: number;
+    gender: string;
+    pfp: string;
+}
+
+//
+
 // Admin Log related types
 export interface AdminLog {
   id: string;
@@ -207,6 +220,7 @@ export interface AdminLog {
   metadata?: any;
   createdAt: Date;
 }
+
 
 
 

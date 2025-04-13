@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+'use client';
 
-import { motion, AnimatePresence, useMotionValue } from "motion/react";
+import React, { useEffect, useState } from "react";
+import { motion, AnimatePresence, useMotionValue } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 export const FollowerPointerCard = ({
@@ -134,3 +135,5 @@ export const FollowPointer = ({
     </motion.div>
   );
 };
+
+

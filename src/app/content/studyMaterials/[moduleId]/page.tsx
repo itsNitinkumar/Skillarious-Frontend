@@ -6,6 +6,8 @@ import { Loader2, Plus, Pencil, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { getFileThumbnail } from '@/utils/file-helpers';
+import MaterialViewer from '@/components/MaterialViewer';
 
 export default function Studymaterials({
   params
@@ -18,6 +20,7 @@ export default function Studymaterials({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [expandedMaterialId, setExpandedMaterialId] = useState<string | null>(null);
+  const [selectedMaterialForView, setSelectedMaterialForView] = useState<StudyMaterial | null>(null);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -150,10 +153,6 @@ export default function Studymaterials({
     setExpandedMaterialId(expandedMaterialId === materialId ? null : materialId);
   };
 
-  function getFileThumbnail(type: string): string | import("next/dist/shared/lib/get-img-props").StaticImport {
-    throw new Error("Function not implemented.");
-  }
-
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
@@ -253,7 +252,7 @@ export default function Studymaterials({
                 >
                   <div className="relative w-48 h-32">
                     <Image
-                      src={getFileThumbnail(material.type)} // You'll need to implement this helper function
+                      src={getFileThumbnail(material.type)}
                       alt={material.title}
                       fill
                       className="object-cover"
@@ -309,14 +308,12 @@ export default function Studymaterials({
                         <h4 className="text-sm font-medium text-gray-400">Order</h4>
                         <p className="text-white">{material.order}</p>
                       </div>
-                      <a
-                        href={material.fileUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <button
+                        onClick={() => setSelectedMaterialForView(material)}
                         className="block w-full mt-4 px-4 py-2 bg-red-600 text-white text-center rounded-lg hover:bg-red-700"
                       >
                         View Material
-                      </a>
+                      </button>
                     </div>
                   </div>
                 )}
@@ -325,6 +322,14 @@ export default function Studymaterials({
           </div>
         </div>
       </div>
+      {selectedMaterialForView && (
+        <MaterialViewer
+          fileUrl={selectedMaterialForView.fileUrl}
+          fileType={selectedMaterialForView.type}
+          title={selectedMaterialForView.title}
+          onClose={() => setSelectedMaterialForView(null)}
+        />
+      )}
     </div>
   );
 }

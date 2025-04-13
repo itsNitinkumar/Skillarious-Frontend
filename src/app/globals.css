@@ -66,3 +66,38 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .bg-grid {
+    background-size: 100px 100px;
+    background-image: 
+      linear-gradient(to right, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+  }
+}
+
+/* Add these to your existing styles */
+
+.bg-gradient-hero {
+  background: radial-gradient(circle at center, #FF6B6B 0%, transparent 70%);
+}
+
+.text-gradient {
+  background: linear-gradient(90deg, #FF6B6B 0%, #FF8E53 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Add smooth scrolling mask */
+.testimonials-container {
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 10%,
+    black 90%,
+    transparent 100%
+  );
+}
+
+
+

@@ -27,13 +27,23 @@ class AuthService {
     return response.data
   }
 
-  async signup(name: string, email: string, password: string) {
-    return axios.post(`${API_URL}/auth/signup`, {
-      name,
-      email,
-      password,
+  async signup(signupData: {
+    name: string;
+    email: string;
+    password: string;
+    phone?: string;
+    gender?: string;
+    age?: number;
+  }) {
+    console.log("Sending signup data:", signupData); // Log the data being sent
+
+    const response = await axios.post(`${API_URL}/auth/signup`, signupData, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
     });
 
+    return response.data;
   }
 
   async verifyOtp(email: string, otp: string) {
@@ -74,8 +84,24 @@ class AuthService {
       if (refreshToken) {
         await axios.post(`${API_URL}/auth/logout`, { refreshToken });
       }
+    } catch (error) {
+      console.error('Error during logout:', error);
     } finally {
+      // Clear all auth-related data
       this.clearTokens();
+      localStorage.removeItem('user');
+      localStorage.removeItem('pendingEducatorRegistration');
+      
+      // Clear any other app-specific data
+      localStorage.removeItem('lastViewedCourse');
+      localStorage.removeItem('courseProgress');
+      
+      // Clear all cookies
+      document.cookie.split(";").forEach(cookie => {
+        document.cookie = cookie
+          .replace(/^ +/, "")
+          .replace(/=.*/, `=;expires=${new Date().toUTCString()};path=/`);
+      });
     }
   }
 
@@ -93,8 +119,8 @@ class AuthService {
   }
 
   clearTokens() {
-    document.cookie = 'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
-    document.cookie = 'refreshToken=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
+    document.cookie = `accessToken=;expires=${new Date().toUTCString()};path=/`;
+    document.cookie = `refreshToken=;expires=${new Date().toUTCString()};path=/`;
   }
 
   private getCookie(name: string) {
@@ -185,6 +211,9 @@ class AuthService {
 const authService = new AuthService();
 authService.setupAxiosInterceptors();
 export default authService;
+
+
+
 
 
 
