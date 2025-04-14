@@ -282,7 +282,7 @@ export default function HomePage() {
     stiffness: 30
   });
 
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
 
   useEffect(() => {
     console.log('Current User:', user);
@@ -290,38 +290,8 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-black">
-      {/* Navigation Bar */}
-      <nav className="fixed w-full z-50 bg-black/50 backdrop-blur-sm border-b border-gray-800">
-        <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <Image src="/tuf-logo.svg" alt="TUF Logo" width={40} height={40} />
-            <span className="text-white font-semibold">takeUforward</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="relative group">
-              <button className="text-white hover:text-gray-300">Resources</button>
-            </div>
-            <button className="text-white hover:text-gray-300">🌙</button>
-            {user ? (
-              <Link 
-                href="/profile"
-                className="bg-[#FF6B6B] text-white px-4 py-2 rounded-full hover:bg-[#FF5252] transition-colors"
-              >
-                {user.email[0].toUpperCase()}
-              </Link>
-            ) : 
-            <Link 
-              href="/login"
-              className="bg-[#FF6B6B] text-white px-4 py-2 rounded-lg hover:bg-[#FF5252] transition-colors"
-            >
-              Login
-            </Link>}
-          </div>
-        </div>
-      </nav>
-
       {/* Hero Section */}
-      <section className="pt-32 pb-16 relative">
+      <section className="pt-32 pb-16 relative h-screen">
         <motion.div 
           initial="hidden"
           animate="visible"
@@ -338,7 +308,7 @@ export default function HomePage() {
               animate={{ color: '#FF6B6B' }}
               transition={{ duration: 1, delay: 0.5 }}
             >
-              DSA Sheet
+              Learn Sphere
             </motion.span>
           </motion.h1>
 
@@ -346,42 +316,49 @@ export default function HomePage() {
             variants={fadeInUp}
             className="text-2xl md:text-3xl font-bold text-white mb-4"
           >
-            Join the{' '}
+            Your{' '}
             <motion.span
               initial={{ scale: 1 }}
               animate={{ scale: 1.1 }}
               transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
               className="bg-[#1E1E1E] px-3 py-1 rounded inline-block"
             >
-              Top 1%
+              Ultimate
             </motion.span>
-            {' '}Today
+            {' '} Hub for Smarter Learning
           </motion.h2>
 
           <motion.p 
             variants={fadeInUp}
             className="text-gray-400 max-w-2xl mx-auto mb-8"
           >
-            Master DSA with curated resources and expert guidance – Learn the skills that set you apart and join the Top 1% of coding achievers!
+            Discover top-tier courses created by expert educators across diverse fields. Whether you're upgrading skills or exploring a new passion, Learn Sphere empowers your journey with flexible learning options.
           </motion.p>
 
           <motion.div 
             variants={fadeInUp}
             className="flex justify-center gap-4"
           >
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-[#1E1E1E] text-white px-6 py-3 rounded-lg hover:bg-[#2D2D2D] transition-colors"
-            >
-              Start for Free
-            </motion.button>
+            {!user && !loading && (
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-[#1E1E1E] text-white px-6 py-3 rounded-lg hover:bg-[#2D2D2D] transition-colors"
+              >
+              <Link href="/login" >
+                Join Now
+              </Link>
+              </motion.button>
+            )
+            }
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="bg-[#FF6B6B] text-white px-6 py-3 rounded-lg hover:bg-[#FF5252] transition-colors"
             >
-              Explore Plus
+              <Link href="/courses" >
+                Explore Courses
+              </Link>
             </motion.button>
           </motion.div>
         </motion.div>
@@ -732,33 +709,33 @@ export default function HomePage() {
 }
 
 // Testimonial Card Component
-const TestimonialCard = ({ testimonial }) => {
-  return (
-    <motion.div 
-      className="bg-[#1A1A1A] rounded-lg p-6 text-white hover:bg-[#2A2A2A] transition-colors"
-      whileHover={{ scale: 1.02 }}
-      transition={{ duration: 0.2 }}
-    >
-      <div className="flex items-start gap-4">
-        <div className="w-12 h-12 rounded-full bg-[#2A2A2A] flex items-center justify-center">
-          <span className="text-sm font-medium">{testimonial.userInitial}</span>
-        </div>
-        <div className="flex-1">
-          <div className="flex justify-between items-center mb-2">
-            <h3 className="font-semibold">{testimonial.userName}</h3>
-            {testimonial.social === 'linkedin' && (
-              <svg className="w-5 h-5 text-[#FF6B47]" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/>
-              </svg>
-            )}
-          </div>
-          <p className="text-gray-400 text-sm">{testimonial.handle}</p>
-          <p className="mt-3 text-gray-200">{testimonial.message}</p>
-        </div>
-      </div>
-    </motion.div>
-  );
-};
+// const TestimonialCard = ({ testimonial }) => {
+//   return (
+//     <motion.div 
+//       className="bg-[#1A1A1A] rounded-lg p-6 text-white hover:bg-[#2A2A2A] transition-colors"
+//       whileHover={{ scale: 1.02 }}
+//       transition={{ duration: 0.2 }}
+//     >
+//       <div className="flex items-start gap-4">
+//         <div className="w-12 h-12 rounded-full bg-[#2A2A2A] flex items-center justify-center">
+//           <span className="text-sm font-medium">{testimonial.userInitial}</span>
+//         </div>
+//         <div className="flex-1">
+//           <div className="flex justify-between items-center mb-2">
+//             <h3 className="font-semibold">{testimonial.userName}</h3>
+//             {testimonial.social === 'linkedin' && (
+//               <svg className="w-5 h-5 text-[#FF6B47]" viewBox="0 0 24 24" fill="currentColor">
+//                 <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/>
+//               </svg>
+//             )}
+//           </div>
+//           <p className="text-gray-400 text-sm">{testimonial.handle}</p>
+//           <p className="mt-3 text-gray-200">{testimonial.message}</p>
+//         </div>
+//       </div>
+//     </motion.div>
+//   );
+// };
 
 
 

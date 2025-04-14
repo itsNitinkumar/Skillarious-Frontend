@@ -3,6 +3,7 @@ import Script from 'next/script';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from '@/context/AuthContext';
 import Header from '@/components/Header';
+
 import Footer from '@/components/Footer';
 import './globals.css';
 
@@ -28,6 +29,7 @@ export default function RootLayout({
       <body>
         <AuthProvider>
           <Header />
+          <Header />
           <main className="min-h-screen bg-gray-900 pt-16">
             {children}
           </main>
@@ -38,6 +40,7 @@ export default function RootLayout({
     </html>
   );
 }
+
 
 
 

@@ -12,12 +12,17 @@ class UserService {
 
   async updateProfile(profileData: any) {
     try {
+      console.log('Sending request to update profile:', profileData); // Debug log
       const response = await axios.put(`${API_URL}/users/updateprofile`, profileData, {
-        headers: this.getHeaders()
+        withCredentials: true,
+        headers: {
+          ...this.getHeaders(),
+          'Content-Type': 'application/json'
+        }
       });
       return response.data;
-    } catch (error) {
-      console.error('Error updating profile:', error);
+    } catch (error: any) {
+      console.error('Error updating profile:', error?.response?.data || error);
       throw error;
     }
   }
@@ -36,4 +41,6 @@ class UserService {
 }
 
 export default new UserService();
+
+
 

@@ -46,12 +46,10 @@ const Footer = () => {
     <footer className="bg-[#0A0A0A] text-white py-16">
       <div className="container mx-auto px-4">
         {/* Stats Section */}
-        <div className="bg-[#0F1117] rounded-2xl p-8 mb-16">
+        {/* <div className="bg-[#0F1117] rounded-2xl p-8 mb-16">
           <div className="relative">
-            {/* Hanging string effect */}
             <div className="absolute left-1/2 -top-12 w-px h-12 bg-gradient-to-b from-transparent to-[#FF6B47]" />
             
-            {/* Swinging label */}
             <motion.h2 
               className="text-3xl font-bold mb-8 relative"
               animate={{
@@ -104,18 +102,12 @@ const Footer = () => {
               <div className="text-gray-400">Free Video Tutorials</div>
             </motion.div>
           </div>
-        </div>
+        </div> */}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
           {/* Brand Column */}
           <div className="lg:col-span-1">
-            <Image 
-              src="/tuf-logo.svg" 
-              alt="TakeUforward Logo" 
-              width={120} 
-              height={40}
-              className="mb-4"
-            />
+          <div className='rounded-sm bg-gray-700 h-32 w-32 text-white/90 flex justify-center items-center text-[100px] font-mono m-4'>LS</div>
             <p className="text-gray-400 text-sm mb-6">
               The best place to learn data Structures, algorithms, most asked coding interview questions & real interview experiences free of cost.
             </p>

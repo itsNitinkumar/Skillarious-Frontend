@@ -3,11 +3,19 @@ import type { NextRequest } from 'next/server';
 import { useAuth } from '@/context/AuthContext';
 
 export function middleware(request: NextRequest) {
-  // Get the pathname
   const path = request.nextUrl.pathname;
 
-  // Protect admin routes
-  if (path.startsWith('/admin')) {
+  // Allow public access to course details
+  if (path.startsWith('/courses/') && !path.includes('/access/')) {
+    return NextResponse.next();
+  }
+
+  // Protect these routes
+  if (path.startsWith('/admin') || 
+      path.startsWith('/dashboard') || 
+      path.startsWith('/profile') || 
+      path.startsWith('/educator') ||
+      path.startsWith('/courses/access')) {
     const accessToken = request.cookies.get('accessToken');
     const refreshToken = request.cookies.get('refreshToken');
 
@@ -16,10 +24,8 @@ export function middleware(request: NextRequest) {
     }
   }
 
-
   return NextResponse.next();
 }
-
 
 export const config = {
   matcher: [
@@ -27,12 +33,9 @@ export const config = {
     '/dashboard/:path*',
     '/profile/:path*',
     '/educator/:path*',
-    '/courses/:path*',
+    '/courses/access/:path*',
     '/login',
     '/signup'
   ]
 };
-
-
-
 

@@ -15,6 +15,14 @@ export default function DoubtsPage() {
   const [filter, setFilter] = useState<'all' | 'open' | 'resolved'>('all');
   const [selectedDoubtId, setSelectedDoubtId] = useState<string | null>(null);
   const [showNewDoubtForm, setShowNewDoubtForm] = useState(false);
+  const [currentContentId, setCurrentContentId] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Get current content ID from URL or context
+    const urlParams = new URLSearchParams(window.location.search);
+    const contentId = urlParams.get('contentId');
+    setCurrentContentId(contentId);
+  }, []);
 
   useEffect(() => {
     fetchDoubts();
@@ -77,10 +85,14 @@ export default function DoubtsPage() {
           <div className="bg-gray-900 rounded-lg w-full max-w-2xl">
             <div className="p-6">
               <h2 className="text-2xl font-bold text-white mb-4">Ask a New Doubt</h2>
-              <DoubtForm
-                contentId="current-content-id" // You'll need to pass the actual contentId
-                onDoubtCreated={handleDoubtCreated}
-              />
+              {currentContentId ? (
+                <DoubtForm
+                  contentId={currentContentId}
+                  onDoubtCreated={handleDoubtCreated}
+                />
+              ) : (
+                <p className="text-red-500">Please select a content to ask a doubt</p>
+              )}
               <button
                 onClick={() => setShowNewDoubtForm(false)}
                 className="mt-4 text-gray-400 hover:text-white"
@@ -149,3 +161,4 @@ export default function DoubtsPage() {
     </div>
   );
 }
+

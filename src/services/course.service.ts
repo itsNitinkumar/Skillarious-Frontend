@@ -71,7 +71,7 @@ const CourseService = {
   },
 
   // Educator methods (protected by backend authorization)
-  createCourse: async (educatorId: string, courseData: any) => {
+  createCourse: async (educatorId: string , courseData: any) => {
     try {
       const response = await axios.post(
         `${API_URL}/courses/create/${educatorId}`,
