@@ -7,6 +7,7 @@ import ContentService from '@/services/content.service'
 import { toast } from 'react-hot-toast'
 import { Loader2, Plus, Trash2 } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
+import { FileUpload } from '@/components/FileUpload'
 
 export default function ClassVideosPage({ params }: { params: { moduleId: string } }) {
     const { user } = useAuth()
@@ -57,30 +58,46 @@ export default function ClassVideosPage({ params }: { params: { moduleId: string
         }
     };
 
-    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
+    const handleFileUpload = async (file: File) => {  // Changed to accept File directly
         if (!file) return;
+
+        // Add file size and type validation
+        const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
+        if (file.size > MAX_FILE_SIZE) {
+            toast.error('File size should be less than 100MB');
+            return;
+        }
+
+        if (!file.type.startsWith('video/')) {
+            toast.error('Please upload a valid video file');
+            return;
+        }
 
         try {
             setIsUploading(true);
+            
+            // Create FormData with proper metadata
             const formData = new FormData();
             formData.append('video', file);
             formData.append('moduleId', params.moduleId);
+            formData.append('title', `Class ${classes.length + 1}`); // Default title
+            formData.append('description', ''); // Optional description
             
-            const response = await ContentService.createClass(params.moduleId, {
-                video: file,
-                moduleId: params.moduleId,
-                duration: '0' // This will be calculated on the server
-            });
+            // Track upload progress
+            const response = await ContentService.createClass(
+                params.moduleId, 
+                formData,
+                (progress) => {
+                    setUploadProgress(Math.round(progress));
+                }
+            );
 
             if (response.success) {
                 toast.success('Class uploaded successfully');
                 fetchClasses();
-                if (fileInputRef.current) {
-                    fileInputRef.current.value = '';
-                }
             }
         } catch (error: any) {
+            console.error('Upload error:', error);
             toast.error(error.message || 'Failed to upload class');
         } finally {
             setIsUploading(false);
@@ -123,22 +140,15 @@ export default function ClassVideosPage({ params }: { params: { moduleId: string
                     {/* Only show upload button for educators/admins */}
                     {(user?.isEducator || user?.isAdmin) && (
                         <div className="flex items-center gap-4">
-                            <label className="relative inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg cursor-pointer hover:bg-blue-700 transition-colors">
-                                <Plus className="w-5 h-5" />
-                                Upload New Class
-                                <input
-                                    ref={fileInputRef}
-                                    type="file"
-                                    accept="video/*"
-                                    onChange={handleFileUpload}
-                                    className="hidden"
-                                    disabled={isUploading}
-                                />
-                            </label>
-
+                            <FileUpload
+                                accept="video/*"
+                                maxSize={100 * 1024 * 1024} // 100MB
+                                onUpload={handleFileUpload}  // Changed to pass the function directly
+                                disabled={isUploading}
+                                buttonText="Upload New Class"
+                            />
                             {isUploading && (
                                 <div className="flex items-center gap-2 text-white">
-                                    <Loader2 className="w-5 h-5 animate-spin" />
                                     <span>Uploading... {uploadProgress}%</span>
                                 </div>
                             )}
@@ -221,6 +231,10 @@ export default function ClassVideosPage({ params }: { params: { moduleId: string
         </div>
     );
 }
+
+
+
+
 
 
 

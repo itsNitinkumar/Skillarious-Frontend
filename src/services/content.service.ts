@@ -140,25 +140,42 @@ class ContentService {
         return response.data;
     }
 
-    async createClass(courseId: string, classData: any) {
-        const formData = new FormData();
-        
-        // Add moduleId and duration to form data
-        formData.append('moduleId', classData.moduleId);
-        formData.append('duration', classData.duration.toString());
-        
-        // Add video file if it exists
-        if (classData.video) {
-            formData.append('video', classData.video);
-        }
-
-        const response = await axios.post(`${API_URL}/content/createClass`, formData, {
-            headers: {
-                'Authorization': `Bearer ${authService.getAccessToken()}`,
-                'Content-Type': 'multipart/form-data'
+    async createClass(
+        contentId: string, 
+        formData: FormData,
+        onProgress?: (progress: number) => void
+    ) {
+        try {
+            const response = await axios.post(
+                `${API_URL}/content/${contentId}`,
+                formData,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        'Authorization': `Bearer ${this.getToken()}`
+                    },
+                    onUploadProgress: (progressEvent) => {
+                        if (onProgress && progressEvent.total) {
+                            const progress = (progressEvent.loaded / progressEvent.total) * 100;
+                            onProgress(progress);
+                        }
+                    }
+                }
+            );
+            
+            if (response.data.success === false) {
+                throw new Error(response.data.message || 'Failed to create class');
             }
-        });
-        return response.data;
+            
+            return response.data;
+        } catch (error: any) {
+            console.error('Create class error:', error);
+            throw new Error(
+                error.response?.data?.message || 
+                error.message || 
+                'Failed to create class'
+            );
+        }
     }
 
     async getAllClasses(courseId: string) {
@@ -195,29 +212,56 @@ class ContentService {
         }
     }
 
-    async updateClass(classId: string, classData: any) {
-        const response = await axios.put(`${API_URL}/content/updateClass/${classId}`, classData, {
-            headers: {
-                'Authorization': `Bearer ${authService.getAccessToken()}`
-            }
-        });
-        return response.data;
-    }
-
-    async deleteClass(classId: string) {
+    async updateClass(
+        classId: string, 
+        formData: FormData,
+        onProgress?: (progress: number) => void
+    ) {
         try {
-            const response = await axios.delete(`${API_URL}/content/deleteClass/${classId}`, {
-                headers: {
-                    'Authorization': `Bearer ${authService.getAccessToken()}`
+            const response = await axios.put(
+                `${API_URL}/content/class/${classId}`,
+                formData,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                    onUploadProgress: (progressEvent) => {
+                        if (onProgress && progressEvent.total) {
+                            const progress = (progressEvent.loaded / progressEvent.total) * 100;
+                            onProgress(progress);
+                        }
+                    }
                 }
-            });
+            );
             return response.data;
         } catch (error: any) {
-            if (axios.isAxiosError(error)) {
-                console.error('Delete class error:', error.response?.data);
-                throw error.response?.data;
+            throw new Error(error.response?.data?.message || 'Failed to update class');
+        }
+    }
+
+    async deleteClass(contentId: string) {
+        try {
+            const response = await axios.delete(
+                `${API_URL}/content/deleteClass/${contentId}`,  // Updated to match backend route
+                {
+                    headers: {
+                        'Authorization': `Bearer ${this.getToken()}`
+                    }
+                }
+            );
+            
+            if (response.data.success === false) {
+                throw new Error(response.data.message || 'Failed to delete class');
             }
-            throw error;
+            
+            return response.data;
+        } catch (error: any) {
+            console.error('Delete class error:', error);
+            throw new Error(
+                error.response?.data?.message || 
+                error.message || 
+                'Failed to delete class'
+            );
         }
     }
 
@@ -277,9 +321,11 @@ class ContentService {
             message: 'An unexpected error occurred'
         };
     }
+
+    private getToken() {
+        // Get the token from localStorage or your auth service
+        return localStorage.getItem('token') || '';
+    }
 }
 
-
-
-const contentService = new ContentService();
-export default contentService;
+export default new ContentService();
