@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@faker-js/faker": "^9.6.0",
+    "@radix-ui/react-tabs": "^1.1.4",
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@types/node": "^20.11.24",
     "@types/react": "^18.2.61",

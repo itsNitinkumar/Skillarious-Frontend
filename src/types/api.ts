@@ -162,6 +162,17 @@ export interface CourseResponse {
     reviews?: Review[];
   };
 }
+//Enrolled courses
+export interface EnrolledCourse {
+  id: string;
+  name: string;
+  description: string;
+  thumbnail: string;
+  educatorName: string;
+  educatorPfp: string;
+  enrollmentDate: string;
+  completionRate: number;
+}
 
 export interface CoursesResponse {
   success: boolean;

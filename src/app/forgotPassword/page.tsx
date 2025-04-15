@@ -21,9 +21,8 @@ export default function ForgotPassword() {
     setLoading(true);
 
     try {
-      const response = await forgotPassword(email);
-      console.log('Forgot password response:', response); // For debugging
-
+      const response = await forgotPassword(email.trim());
+      
       if (response.success) {
         toast.success('OTP sent to your email!');
         setShowResetForm(true);
@@ -40,12 +39,17 @@ export default function ForgotPassword() {
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (newPassword.length < 8) {
+      toast.error('Password must be at least 8 characters long');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const response = await resetPassword(email, otp, newPassword);
-      console.log('Reset password response:', response); // For debugging
-
+      const response = await resetPassword(email.trim(), otp.trim(), newPassword);
+      
       if (response.success) {
         toast.success('Password reset successful!');
         router.push('/login');
@@ -165,6 +169,8 @@ export default function ForgotPassword() {
     </div>
   );
 }
+
+
 
 
 

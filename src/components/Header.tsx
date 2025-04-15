@@ -22,16 +22,7 @@ export default function Header() {
   const [categories, setCategories] = useState<any[]>([]);
   const router = useRouter();
 
-  // const educatorMenuItems = [
-  //   {
-  //     label: 'Educator Profile',
-  //     href: '/educator/profile',
-  //   },
-  //   {
-  //     label: 'My Courses',
-  //     href: '/courses/educator/`${educator?.id}`',
-  //   },
-  // ];
+  
 
   useEffect(() => {
     // Fetch categories when component mounts
@@ -73,6 +64,10 @@ export default function Header() {
       }
     }
   };
+
+  function handleLogout() {
+    throw new Error('Function not implemented.');
+  }
 
   return (
     <nav className="fixed w-full z-50 bg-black/50 backdrop-blur-sm border-b border-gray-800">
@@ -176,33 +171,38 @@ export default function Header() {
                         className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700"
                         onClick={() => setIsMenuOpen(false)}
                       >
-                        Profile
+                        Student Profile
                       </Link>
-                      {user?.isEducator && (
+                      
+                      {user?.isEducator ? (
+                        // Educator sees "Courses Taught"
                         <Link
-                          href={"/educator"}
+                          href="/educator"
                           className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700"
                           onClick={() => setIsMenuOpen(false)}
                         >
                           Courses Taught
                         </Link>
+                      ) : (
+                        // Students see "My Courses"
+                        <Link
+                          href="/enrolledCourses"
+                          className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          My Courses
+                        </Link>
                       )}
-                      <Link
-                        href="/settings"
-                        className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700"
-                        onClick={() => setIsMenuOpen(false)}
+
+                      <button
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          handleLogout();
+                        }}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700"
                       >
-                        Settings
-                      </Link>
-                      <div className="border-t border-gray-700"></div>
-                      <Link
-                        href="/logout"
-                        className="flex items-center px-4 py-2 text-sm text-red-500 hover:bg-gray-700"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        <LogOut className="w-4 h-4 mr-2" />
                         Logout
-                      </Link>
+                      </button>
                     </div>
                   )}
                 </div>
@@ -225,4 +225,6 @@ export default function Header() {
       </nav>
   )
 }
+
+
 

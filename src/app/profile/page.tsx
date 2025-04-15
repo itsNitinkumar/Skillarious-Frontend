@@ -1,14 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import userService from '@/services/user.service';
 import educatorService from '@/services/educator.service';
 import { useAuth } from '@/context/AuthContext';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
-import { User, Mail, Phone, Calendar, Image as ImageIcon, BookOpen } from 'lucide-react';
 import { Profile } from '@/types';
-import Image from 'next/image';
 
 interface EducatorFields {
     bio: string;
@@ -61,91 +60,24 @@ export default function ProfilePage() {
         }
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        try {
-            const profileData = {
-                name: profile.name,
-                phone: profile.phone || null,  // Send null if empty
-                gender: profile.gender || null, // Send null if empty
-                age: profile.age || null,      // Send null if empty
-                pfp: profile.pfp || null       // Send null if empty
-            };
-
-            console.log('Sending profile data:', profileData); // Debug log
-
-            const userProfileResponse = await userService.updateProfile(profileData);
-            
-            if (!userProfileResponse.success) {
-                throw new Error(userProfileResponse.message || 'Failed to update user profile');
-            }
-
-            // If user is educator, update educator profile
-            if (user?.isEducator) {
-                const educatorData = {
-                    bio: educatorFields.bio || '',
-                    about: educatorFields.about || '',
-                    doubtOpen: educatorFields.doubtOpen
-                };
-                
-                console.log('Sending educator data:', educatorData); // Debug log
-                
-                const educatorProfileResponse = await educatorService.updateEducatorProfile(educatorData);
-                if (!educatorProfileResponse.success) {
-                    throw new Error('Failed to update educator profile');
-                }
-            }
-
-            toast.success('Profile updated successfully');
-            setIsEditing(false);
-            await fetchProfiles();
-        } catch (error: any) {
-            console.error('Profile update error:', error?.response?.data || error);
-            toast.error(error?.response?.data?.message || error.message || 'Failed to update profile');
-        }
-    };
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        if (['bio', 'about'].includes(name)) {
-            setEducatorFields(prev => ({
-                ...prev,
-                [name]: value
-            }));
-        } else {
-            setProfile(prev => ({
-                ...prev,
-                [name]: value
-            }));
-        }
-    };
-
     const handleToggleAvailability = async () => {
         try {
             const response = await educatorService.toggleDoubtAvailability();
             if (response.success) {
-                setEducatorFields(prev => ({ ...prev, doubtOpen: response.data.doubtOpen }));
-                toast.success(`Availability ${response.data.doubtOpen ? 'enabled' : 'disabled'}`);
+                setEducatorFields(prev => ({
+                    ...prev,
+                    doubtOpen: !prev.doubtOpen
+                }));
+                toast.success('Availability updated successfully');
             }
         } catch (error) {
-            toast.error('Failed to toggle availability');
+            console.error('Error toggling availability:', error);
+            toast.error('Failed to update availability');
         }
     };
 
-    if (!user) {
-        return (
-            <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-                <div className="text-white">You are not logged in.</div>
-            </div>
-        );
-    }
-
     if (loading) {
-        return (
-            <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-                <div className="text-white">Loading...</div>
-            </div>
-        );
+        return <div className="flex justify-center p-8">Loading...</div>;
     }
 
     return (
@@ -153,7 +85,7 @@ export default function ProfilePage() {
             <div className="max-w-3xl mx-auto">
                 <div className="bg-gray-800 shadow-xl rounded-lg overflow-hidden border border-gray-700">
                     <div className="p-6">
-                        {/* Add profile picture section */}
+                        {/* Profile picture section */}
                         <div className="flex flex-col items-center mb-8">
                             <div className="relative w-32 h-32 mb-4">
                                 <Image
@@ -182,7 +114,7 @@ export default function ProfilePage() {
                                 >
                                     {isEditing ? 'Cancel' : 'Edit Profile'}
                                 </button>
-                                {user.isEducator && (
+                                {user?.isEducator && (
                                     <button
                                         onClick={handleToggleAvailability}
                                         className={`px-6 py-2 rounded-full transition-all duration-300 ${
@@ -197,180 +129,54 @@ export default function ProfilePage() {
                             </div>
                         </div>
 
-                        {isEditing ? (
-                            <form onSubmit={handleSubmit} className="space-y-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    {/* Existing profile fields */}
-                                    <div className="space-y-2">
-                                        <label className="flex items-center text-sm font-medium text-gray-300">
-                                            <User className="w-4 h-4 mr-2" />
-                                            Full Name
-                                        </label>
-                                        <input
-                                            type="text"
-                                            name="name"
-                                            value={profile.name}
-                                            onChange={handleChange}
-                                            className="w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            placeholder="Enter your name"
-                                        />
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <label className="flex items-center text-sm font-medium text-gray-300">
-                                            <Phone className="w-4 h-4 mr-2" />
-                                            Phone Number
-                                        </label>
-                                        <input
-                                            type="tel"
-                                            name="phone"
-                                            value={profile.phone}
-                                            onChange={handleChange}
-                                            className="w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            placeholder="Enter phone number"
-                                        />
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <label className="flex items-center text-sm font-medium text-gray-300">
-                                            <Calendar className="w-4 h-4 mr-2" />
-                                            Age
-                                        </label>
-                                        <input
-                                            type="number"
-                                            name="age"
-                                            value={profile.age}
-                                            onChange={handleChange}
-                                            className="w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            placeholder="Enter your age"
-                                        />
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <label className="flex items-center text-sm font-medium text-gray-300">
-                                            <User className="w-4 h-4 mr-2" />
-                                            Gender
-                                        </label>
-                                        <select
-                                            name="gender"
-                                            value={profile.gender}
-                                            onChange={handleChange}
-                                            className="w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        >
-                                            <option value="">Select gender</option>
-                                            <option value="male">Male</option>
-                                            <option value="female">Female</option>
-                                            <option value="other">Other</option>
-                                        </select>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <label className="flex items-center text-sm font-medium text-gray-300">
-                                            <ImageIcon className="w-4 h-4 mr-2" />
-                                            Profile Picture URL
-                                        </label>
-                                        <input
-                                            type="text"
-                                            name="pfp"
-                                            value={profile.pfp}
-                                            onChange={handleChange}
-                                            className="w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            placeholder="Enter profile picture URL"
-                                        />
-                                    </div>
+                        {/* Profile details */}
+                        <div className="space-y-6">
+                            {/* Add your profile fields here */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <label className="text-sm text-gray-400">Name</label>
+                                    <p className="text-white">{profile.name}</p>
                                 </div>
-
-                                {/* Educator-specific fields */}
-                                {user.isEducator && (
-                                    <div className="space-y-6 mt-6">
-                                        <div className="space-y-2">
-                                            <label className="flex items-center text-sm font-medium text-gray-300">
-                                                <BookOpen className="w-4 h-4 mr-2" />
-                                                Bio
-                                            </label>
-                                            <textarea
-                                                name="bio"
-                                                value={educatorFields.bio}
-                                                onChange={handleChange}
-                                                className="w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                                placeholder="Enter your bio"
-                                                rows={3}
-                                            />
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <label className="flex items-center text-sm font-medium text-gray-300">
-                                                <BookOpen className="w-4 h-4 mr-2" />
-                                                About
-                                            </label>
-                                            <textarea
-                                                name="about"
-                                                value={educatorFields.about}
-                                                onChange={handleChange}
-                                                className="w-full px-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                                placeholder="Tell us more about yourself"
-                                                rows={5}
-                                            />
-                                        </div>
-                                    </div>
-                                )}
-
-                                <div className="flex justify-end mt-8">
-                                    <button
-                                        type="submit"
-                                        className="px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold rounded-full transition-all duration-300"
-                                    >
-                                        Save Changes
-                                    </button>
+                                <div className="space-y-2">
+                                    <label className="text-sm text-gray-400">Email</label>
+                                    <p className="text-white">{profile.email}</p>
                                 </div>
-                            </form>
-                        ) : (
-                            <div className="space-y-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="bg-gray-700/50 p-4 rounded-lg">
-                                        <p className="text-gray-400 text-sm">Name</p>
-                                        <p className="text-white">{profile.name}</p>
-                                    </div>
-                                    <div className="bg-gray-700/50 p-4 rounded-lg">
-                                        <p className="text-gray-400 text-sm">Email</p>
-                                        <p className="text-white">{profile.email}</p>
-                                    </div>
-                                    <div className="bg-gray-700/50 p-4 rounded-lg">
-                                        <p className="text-gray-400 text-sm">Phone</p>
-                                        <p className="text-white">{profile.phone || 'Not provided'}</p>
-                                    </div>
-                                    <div className="bg-gray-700/50 p-4 rounded-lg">
-                                        <p className="text-gray-400 text-sm">Age</p>
-                                        <p className="text-white">{profile.age || 'Not provided'}</p>
-                                    </div>
-                                    <div className="bg-gray-700/50 p-4 rounded-lg">
-                                        <p className="text-gray-400 text-sm">Gender</p>
-                                        <p className="text-white">{profile.gender || 'Not provided'}</p>
-                                    </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm text-gray-400">Phone</label>
+                                    <p className="text-white">{profile.phone || 'Not provided'}</p>
                                 </div>
-
-                                {user.isEducator && (
-                                    <div className="space-y-6 mt-6">
-                                        <div className="bg-gray-700/50 p-4 rounded-lg">
-                                            <p className="text-gray-400 text-sm">Bio</p>
-                                            <p className="text-white">{educatorFields.bio || 'No bio added yet.'}</p>
-                                        </div>
-                                        <div className="bg-gray-700/50 p-4 rounded-lg">
-                                            <p className="text-gray-400 text-sm">About</p>
-                                            <p className="text-white">{educatorFields.about || 'No about information added yet.'}</p>
-                                        </div>
-                                    </div>
-                                )}
+                                <div className="space-y-2">
+                                    <label className="text-sm text-gray-400">Age</label>
+                                    <p className="text-white">{profile.age || 'Not provided'}</p>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm text-gray-400">Gender</label>
+                                    <p className="text-white">{profile.gender || 'Not provided'}</p>
+                                </div>
                             </div>
-                        )}
+
+                            {/* Educator-specific fields */}
+                            {user?.isEducator && (
+                                <div className="mt-8 pt-8 border-t border-gray-700">
+                                    <h2 className="text-2xl font-bold text-white mb-6">Educator Profile</h2>
+                                    <div className="space-y-6">
+                                        <div className="space-y-2">
+                                            <label className="text-sm text-gray-400">Bio</label>
+                                            <p className="text-white">{educatorFields.bio || 'No bio provided'}</p>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-sm text-gray-400">About</label>
+                                            <p className="text-white">{educatorFields.about || 'No about information provided'}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     );
 }
-
-
-
 
 
