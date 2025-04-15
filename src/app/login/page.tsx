@@ -89,7 +89,7 @@ export default function Login() {
           </button>
 
           <div className="flex items-center justify-between">
-            <Link href="/forgot-password" className="text-sm text-red-500 hover:text-red-400">
+            <Link href="/forgotPassword" className="text-sm text-red-500 hover:text-red-400">
               Forgot password?
             </Link>
             <Link href="/signup" className="text-sm text-red-500 hover:text-red-400">

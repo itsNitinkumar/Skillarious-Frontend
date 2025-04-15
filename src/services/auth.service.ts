@@ -78,6 +78,35 @@ class AuthService {
     }
   }
 
+  async forgotPassword(email: string) {
+    try {
+      const response = await axios.post(`${API_URL}/auth/forgotpassword`, { email });
+      return response; // Return the entire response
+    } catch (error: any) {
+      console.error('Forgot password error:', error.response || error);
+      throw error;
+    }
+  }
+
+  async resetPassword(email: string, otp: string, newPassword: string) {
+    try {
+      const response = await axios.post(`${API_URL}/auth/resetpassword`, {
+        email,
+        otp,
+        newPassword
+      });
+      return {
+        success: response.data.success,
+        message: response.data.message
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to reset password'
+      };
+    }
+  }
+
   async logout() {
     try {
       const refreshToken = this.getRefreshToken();

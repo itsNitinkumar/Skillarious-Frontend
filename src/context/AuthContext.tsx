@@ -33,6 +33,8 @@ interface AuthContextType {
   logout: () => Promise<void>;
   verifyOtp: (email: string, otp: string) => Promise<void>;
   refreshUser: () => Promise<void>;
+  forgotPassword: (email: string) => Promise<void>;
+  resetPassword: (email: string, otp: string, newPassword: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
@@ -159,9 +161,54 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // You might want to clear other app-specific state here
     }
   };
+  const forgotPassword = async (email: string) => {
+    try {
+      const response = await authService.forgotPassword(email);
+      return {
+        success: true,
+        message: response.data.message
+      };
+    } catch (error: any) {
+      console.error('Forgot password error:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to send reset code'
+      };
+    }
+  };
+  const resetPassword = async (email: string, otp: string, newPassword: string) => {
+    try {
+      const response = await authService.resetPassword(email, otp, newPassword);
+      return response;
+    } catch (error: any) {
+      console.error('Reset password error:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Failed to reset password'
+      };
+    }
+  };
+  const refreshUser = async () => {
+    try {
+      await fetchUserProfile();
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to refresh user');
+    }
+  };
+  
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout, verifyOtp }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      loading, 
+      login, 
+      signup, 
+      logout, 
+      verifyOtp,
+      forgotPassword,
+      resetPassword,
+      refreshUser
+    }}>
       {children}
     </AuthContext.Provider>
   );
